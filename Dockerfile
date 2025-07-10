@@ -29,14 +29,12 @@ RUN poetry config virtualenvs.in-project true
 # Set workdir
 WORKDIR /app
 
-# Copy the entire project
+# For production
 COPY . .
-
-# Install dependencies (no dev dependencies by default)
 RUN poetry install --no-interaction --no-ansi
+CMD ["poetry", "run", "kita"]
 
-# Install pretty-errors
-RUN poetry run python3 -m pretty_errors -s
-
-# Keep the container running
-CMD ["tail", "-f", "/dev/null"]
+# For development
+# RUN poetry install --no-interaction --no-ansi
+# RUN poetry run python3 -m pretty_errors -s
+# CMD ["tail", "-f", "/dev/null"]
