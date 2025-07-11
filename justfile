@@ -6,9 +6,19 @@ build target:
 
 run target:
     if [ "{{target}}" = "dev" ]; then \
-        docker run --hostname bots -d --env-file .env -v $(pwd):/app --name kita.{{target}} kita:{{target}}; \
+        docker run -d\
+            --hostname bots \
+            --env-file .env \
+            -v $(pwd):/app \
+            --name kita.{{target}} \
+            kita:{{target}}; \
     else \
-        docker run --hostname bots -d --env-file .env --name kita.{{target}} kita:{{target}}; \
+        docker run -d\
+            --hostname bots \
+            --env-file .env \
+            -v zulip-bot-data:/app/data \
+            --name kita.{{target}} \
+            kita:{{target}}; \
     fi
 
 start target:
@@ -22,3 +32,6 @@ rm target:
 
 logs target:
     docker logs -f kita.{{target}}
+
+volume:
+    docker volume create zulip-bot-data

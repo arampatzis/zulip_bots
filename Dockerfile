@@ -29,6 +29,7 @@ FROM base AS app
 
 WORKDIR /app
 COPY . .
+RUN mkdir -p /app/data
 RUN poetry install --no-interaction --no-ansi
 CMD ["poetry", "run", "kita"]
 

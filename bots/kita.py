@@ -3,6 +3,7 @@ import sqlite3
 import zulip
 import openai
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 from collections import defaultdict, deque
 
@@ -40,7 +41,7 @@ Just mention `@**kita**` in your message to chat as normal!
 
     max_tokens = 1_000_000
 
-    db_file = "kita_state.db"
+    db_file = Path("data/kita_state.db")
 
     model = "o4-mini"
 
@@ -58,6 +59,8 @@ Just mention `@**kita**` in your message to chat as normal!
         self.client_zulip.call_on_each_event(self.handle_event, event_types=["message"])
 
     def setup_db(self):
+        self.db_file.parent.mkdir(parents=True, exist_ok=True)
+        self.db_file.touch(exist_ok=True)
         with sqlite3.connect(self.db_file) as conn:
             c = conn.cursor()
             c.execute("""
@@ -163,8 +166,11 @@ Just mention `@**kita**` in your message to chat as normal!
             self.conversation_memory[conv_id].clear()
             reply = "💡 Memory reset for this conversation."
 
+        elif re.match(r"^@\*\*kita\*\*\s*--model", content.strip(), re.IGNORECASE):
+            reply = f" ⚙️ GPT model: {self.model}\n"
+
         elif re.match(r"^@\*\*kita\*\*\s*--tokens", content.strip(), re.IGNORECASE):
-            reply = f"👤 Total tokens used by you: {self.token_usage[sender]}\n"
+            reply = f"💸 Total tokens used by you: {self.token_usage[sender]}\n"
 
         elif re.match(
             r"^@\*\*kita\*\*\s*--reset-tokens\s+(\S+)", content.strip(), re.IGNORECASE
