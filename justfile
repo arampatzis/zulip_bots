@@ -6,14 +6,14 @@ build target:
 
 run target:
     if [ "{{target}}" = "dev" ]; then \
-        docker run -d\
+        docker run -d \
             --hostname bots \
             --env-file .env \
             -v $(pwd):/app \
             --name kita.{{target}} \
             kita:{{target}}; \
     else \
-        docker run -d\
+        docker run -d \
             --hostname bots \
             --env-file .env \
             -v zulip-bot-data:/app/data \
