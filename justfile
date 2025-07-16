@@ -1,37 +1,46 @@
 default:
   @just --list
 
-build target:
-    docker build --target {{target}} -t kita:{{target}} .
-
-run target:
-    if [ "{{target}}" = "dev" ]; then \
-        docker run -d \
-            --hostname bots \
-            --env-file .env \
-            -v $(pwd):/app \
-            --name kita.{{target}} \
-            kita:{{target}}; \
+build mode:
+    @if [ "{{mode}}" = "dev" ] || [ "{{mode}}" = "deploy" ]; then \
+        docker build --target {{mode}} -t bots:{{mode}} . ;\
     else \
-        docker run -d \
-            --hostname bots \
-            --env-file .env \
-            -v zulip-bot-data:/app/data \
-            --name kita.{{target}} \
-            kita:{{target}}; \
+        echo "Invalid mode: {{mode}}" ;\
+        echo "Valid modes: dev, deploy" ;\
     fi
 
-start target:
-    docker exec -it kita.{{target}} /bin/bash
+run mode:
+    @if [ "{{mode}}" = "dev" ]; then \
+        docker run -d \
+            --hostname bots.dev \
+            --env-file .env \
+            -v $(pwd):/app \
+            --name bots.dev \
+            bots:dev; \
+    elif [ "{{mode}}" = "kita" ] || [ "{{mode}}" = "arxiv" ]; then \
+        docker run -d \
+            --hostname bots.{{mode}} \
+            --env-file .env \
+            -v zulip-bot-data:/app/data \
+            --name bots.app \
+            bots:deploy \
+            poetry run {{mode}}; \
+    else \
+        echo "Invalid mode: {{mode}}"; \
+        echo "Valid modes: dev, kita, arxiv"; \
+    fi
 
-stop target:
-    docker stop kita.{{target}}
+shell mode:
+    @docker exec -it bots.{{mode}} /bin/bash
 
-rm target:
-    docker rm kita.{{target}} || true
+stop mode:
+    @docker stop bots.{{mode}}
 
-logs target:
-    docker logs -f kita.{{target}}
+rm mode:
+    @docker rm bots.{{mode}} || true
+
+logs mode:
+    @docker logs -f bots.{{mode}}
 
 volume:
-    docker volume create zulip-bot-data
+    @docker volume create zulip-bot-data

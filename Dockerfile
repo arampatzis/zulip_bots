@@ -25,13 +25,12 @@ RUN pipx inject poetry poetry-plugin-shell
 RUN poetry config virtualenvs.in-project true
 
 
-FROM base AS app
+FROM base AS deploy
 
 WORKDIR /app
 COPY . .
 RUN mkdir -p /app/data
 RUN poetry install --no-interaction --no-ansi
-CMD ["poetry", "run", "kita"]
 
 
 FROM base AS dev
