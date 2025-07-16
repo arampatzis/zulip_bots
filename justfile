@@ -22,7 +22,7 @@ run mode:
             --hostname bots.{{mode}} \
             --env-file .env \
             -v zulip-bot-data:/app/data \
-            --name bots.app \
+            --name bots.{{mode}} \
             bots:deploy \
             poetry run {{mode}}; \
     else \
