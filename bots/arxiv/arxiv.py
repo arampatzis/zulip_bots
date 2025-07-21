@@ -248,6 +248,14 @@ Examples:
             ):
                 return
 
+            if event["sender_type"] == "bot":
+                reply.send(
+                    "This bot does not respond to other bots.",
+                    self.client_zulip
+                )
+                logger.info("Skipping bot message: %s", event)
+                return
+
             cmd_args = self.parse(content)
             logger.info("cmd_args: %s", cmd_args)
 

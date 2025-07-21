@@ -236,10 +236,18 @@ Arguments:
         sender = message["sender_id"]
         reply = Message.from_zulip_message(message, self.client_zulip.email)
 
-        conv_id = self.get_conversation_id(message)
-
         if message["sender_email"] == self.client_zulip.email:
+                return
+
+        if event["sender_type"] == "bot":
+            reply.send(
+                "This bot does not respond to other bots.",
+                self.client_zulip
+            )
+            logger.info("Skipping bot message: %s", event)
             return
+
+        conv_id = self.get_conversation_id(message)
 
         cmd_args = self.parse(content)
 
@@ -249,6 +257,8 @@ Arguments:
                 self.client_zulip,
             )
             return
+        
+        
 
         if cmd_args.get("help"):
             reply.send(f"```text\n{cmd_args['help_message']}\n```", self.client_zulip)
